@@ -1,0 +1,5 @@
+name: CaptureHorse
+version: '1.0-SNAPSHOT'
+main: net.rodald.captureHorse.CaptureHorse
+api-version: '1.21'
+authors: [ Rodald ]
