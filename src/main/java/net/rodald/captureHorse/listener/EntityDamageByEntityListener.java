@@ -1,8 +1,7 @@
 package net.rodald.captureHorse.listener;
 
+import net.kyori.adventure.text.Component;
 import net.rodald.captureHorse.mechanics.item.UsableItem;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,9 +17,8 @@ public class EntityDamageByEntityListener implements Listener {
 
             ItemMeta meta = itemStack.getItemMeta();
             if (meta != null && meta.hasDisplayName()) {
-                Bukkit.broadcastMessage("EntityDamageByEntity");
-                String displayName = meta.getDisplayName();
-                UsableItem usableItem = UsableItem.getItemByName(ChatColor.RESET + displayName);
+                Component displayName = meta.displayName();
+                UsableItem usableItem = UsableItem.getItemByName(displayName);
 
                 if (usableItem != null) {
                     usableItem.handleEntityDamageByEntity(e);

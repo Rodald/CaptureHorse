@@ -2,15 +2,16 @@ package net.rodald.captureHorse.mechanics.item.usableItem;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.rodald.captureHorse.CaptureHorse;
 import net.rodald.captureHorse.mechanics.item.UsableItem;
 import net.rodald.captureHorse.scoreboard.Teams;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -26,8 +27,8 @@ public class IceSmash extends UsableItem {
         return Material.DIAMOND_AXE;
     }
     @Override
-    public String getItemName() {
-        return ChatColor.GREEN + "Ice Hammer";
+    public Component getItemName() {
+        return applyGradient("Ice Hammer", TextColor.color(0x00FFFF), TextColor.color(0xA3FF));
     }
 
     @Override
@@ -38,6 +39,10 @@ public class IceSmash extends UsableItem {
     }
 
     @Override
+    public int getCooldown() { return 600; };
+
+
+    @Override
     protected void prepareItem(ItemStack item) {
         ItemMeta meta = item.getItemMeta();
     }
@@ -46,15 +51,15 @@ public class IceSmash extends UsableItem {
     public int getCustomModelData() {
         return 0;
     }
-    private static final double BRIDGE_LENGTH = 100;  // Länge der Brücke
-    private static final double CURVE_STRENGTH = 2; // Stärke der Kurve
-    private static final int BLOCKS_PER_SECOND = 10; // Anzahl der Blöcke, die pro Sekunde gesetzt werden
-    private static final int BRIDGE_WIDTH = 1; // Anzahl der Blöcke, die pro Sekunde gesetzt werden
+    private static final double BRIDGE_LENGTH = 100;
+    private static final double CURVE_STRENGTH = 2;
+    private static final int BLOCKS_PER_SECOND = 10;
+    private static final int BRIDGE_WIDTH = 1;
 
     @Override
     public void handleRightClick(PlayerInteractEvent e) {
         Player player = e.getPlayer();
-        buildIceBridge(player.getLocation().add(0, -1, 0));  // Startpunkt der Brücke, leicht erhöht
+        buildIceBridge(player.getLocation().add(0, -1, 0));
     }
 
     // Methode zum Erstellen der Eisbrücke
@@ -65,59 +70,58 @@ public class IceSmash extends UsableItem {
 
         Location currentLocation = startLocation.add(startDirection);
 
-        // Animationsschritt: Erstelle die Brücke schrittweise
         new BukkitRunnable() {
             int currentBlock = 0;
 
             @Override
             public void run() {
-                // Berechne die Position des nächsten Blocks und eine leichte y-Kurve
-                double offsetY = Math.sin(currentBlock * Math.PI / BRIDGE_LENGTH) * CURVE_STRENGTH; // Leichte Kurve
+                double offsetY = Math.sin(currentBlock * Math.PI / BRIDGE_LENGTH) * CURVE_STRENGTH;
 
-                // Berechne die Position des Blocks an der aktuellen Stelle
                 Location blockLocation = currentLocation.clone().add(direction.clone().multiply(currentBlock));
-                blockLocation.setY(blockLocation.getY() + offsetY);  // Kurve einbauen
+                blockLocation.setY(blockLocation.getY() + offsetY);
 
-                // Setze den Block (Frozen Ice)
                 for (int x = -BRIDGE_WIDTH; x <= BRIDGE_WIDTH; x++) {
                     for (int z = -BRIDGE_WIDTH; z <= BRIDGE_WIDTH; z++) {
                         Block block = blockLocation.clone().add(x, 0, z).getBlock();
                         if (block.getBlockData().getMaterial() != Material.AIR && block.getBlockData().getMaterial() != Material.FROSTED_ICE) {
-                            continue;
+                            if (x == 0 && z == 0 && currentBlock >= 5) {
+                                this.cancel();
+                                return;
+                            } else {
+                                continue;
+                            }
                         }
-                        // Partikel zur Animation
                         block.setType(Material.FROSTED_ICE);
                         block.getWorld().spawnParticle(Particle.SNOWFLAKE, block.getLocation(), 5, 1, 1, 1, 0);
-
+                        block.getWorld().playSound(block.getLocation(), Sound.BLOCK_SNOW_PLACE, 1, 1);
                     }
                 }
 
-                // Wenn die Brücke fertig ist, stoppen wir die Animation
                 if (++currentBlock >= BRIDGE_LENGTH) {
                     cancel();
                 }
 
             }
-        }.runTaskTimer(CaptureHorse.getInstance(), 0L, 20L / BLOCKS_PER_SECOND);  // Zeit zwischen den Blocksetzungen
+        }.runTaskTimer(CaptureHorse.getInstance(), 0L, 20L / BLOCKS_PER_SECOND);
     }
 
     @Override
     public void handleAttack(EntityDamageByEntityEvent e) {
         Player damager = (Player) e.getDamager();
-        if (!(e.getEntity() instanceof Player target)) return;
-
-        if (Teams.getEntityTeam(damager) != null && Teams.getEntityTeam(target) != null) {
-            if (Teams.getEntityTeam(damager) == Teams.getEntityTeam(target)) {
-                return;
+        Entity target = e.getEntity();
+        if (e.getEntity() instanceof Player targetPlayer) {
+            if (Teams.getEntityTeam(damager) != null && Teams.getEntityTeam(targetPlayer) != null) {
+                if (Teams.getEntityTeam(damager) == Teams.getEntityTeam(targetPlayer)) {
+                    return;
+                }
             }
         }
 
         World world = target.getWorld();
+        world.playSound(target.getLocation(), Sound.BLOCK_GLASS_BREAK, 1, 1);
         Location targetLocation = target.getLocation();
 
         spawnAndPlaceIceBlocks(world, targetLocation);
-
-        damager.sendMessage("Du hast " + target.getName() + " geschlagen und Eisblöcke erzeugt!");
     }
 
     private void spawnAndPlaceIceBlocks(World world, Location location) {

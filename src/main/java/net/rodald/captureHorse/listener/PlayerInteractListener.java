@@ -1,7 +1,7 @@
 package net.rodald.captureHorse.listener;
 
+import net.kyori.adventure.text.Component;
 import net.rodald.captureHorse.mechanics.item.UsableItem;
-import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -17,8 +17,8 @@ public class PlayerInteractListener implements Listener {
         if (itemStack != null) {
             ItemMeta meta = itemStack.getItemMeta();
             if (meta != null && meta.hasDisplayName()) {
-                String displayName = meta.getDisplayName();
-                UsableItem usableItem = UsableItem.getItemByName(ChatColor.RESET + displayName);
+                Component displayName = meta.displayName();
+                UsableItem usableItem = UsableItem.getItemByName(displayName);
 
                 if (usableItem != null) {
                     usableItem.handleItemAction(e);
