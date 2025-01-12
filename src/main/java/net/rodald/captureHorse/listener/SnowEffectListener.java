@@ -5,9 +5,9 @@ import net.rodald.captureHorse.CaptureHorse;
 import net.rodald.captureHorse.mechanics.item.UsableItem;
 import net.rodald.captureHorse.scoreboard.Teams;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -43,8 +43,11 @@ public class SnowEffectListener {
     }
 
     private void applyPowderSnowEffectAroundPlayer(Player player) {
-        for (Entity nearbyEntity : player.getWorld().getEntities()) {
-            if (nearbyEntity.getLocation().distance(player.getLocation()) <= EFFECT_RADIUS) {
+        for (FallingBlock fallingBlock : player.getWorld().getEntitiesByClass(FallingBlock.class)) {
+            for (Entity nearbyEntity : player.getWorld().getEntities()) {
+                if (nearbyEntity instanceof FallingBlock) {
+                    continue;
+                }
 
                 if (nearbyEntity instanceof Player nearbyPlayer) {
                     if (Teams.getEntityTeam(player) != null && Teams.getEntityTeam(nearbyPlayer) != null) {
@@ -56,9 +59,11 @@ public class SnowEffectListener {
                     }
                 }
 
-
-                nearbyEntity.setFreezeTicks(200);
-                nearbyEntity.getWorld().spawnParticle(Particle.SNOWFLAKE, nearbyEntity.getLocation(), 20, 1, 2, 1, 0);
+                if (fallingBlock.getLocation().distance(nearbyEntity.getLocation()) < 1) {
+                    nearbyEntity.setFreezeTicks(200);
+                    nearbyEntity.getWorld().spawnParticle(Particle.SNOWFLAKE, nearbyEntity.getLocation(), 20, 1, 2, 1, 0);
+                    fallingBlock.remove();
+                }
             }
         }
     }
