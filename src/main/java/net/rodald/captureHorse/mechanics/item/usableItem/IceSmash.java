@@ -34,7 +34,7 @@ public class IceSmash extends UsableItem {
     @Override
     public ArrayList<Component> getItemLore() {
         ArrayList<Component> lore = new ArrayList<>();
-        lore.add(Component.text("Drücke Rechtsklick, um das Spiel Menü aufzurufen.", NamedTextColor.GRAY));
+        lore.add(Component.text("Ice Hammer Description.", NamedTextColor.GRAY));
         return lore;
     }
 
