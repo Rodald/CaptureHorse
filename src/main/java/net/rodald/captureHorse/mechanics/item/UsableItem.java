@@ -25,6 +25,7 @@ public abstract class UsableItem extends Item {
     public boolean clearItemOnUse() { return false; };
     public abstract void handleRightClick(PlayerInteractEvent e);
     public abstract void handleAttack(EntityDamageByEntityEvent e);
+    public abstract void handleTick(Player player);
 
     public abstract void spawnParticles(Player p);
     public abstract void playSound(Player p);
@@ -78,6 +79,9 @@ public abstract class UsableItem extends Item {
 
     public void handleEntityDamageByEntity(EntityDamageByEntityEvent e) {
         handleAttack(e);
+    }
+    public void handleItemTick(Player player) {
+        handleTick(player);
     }
 
     public static UsableItem getItemByName(Component name) {

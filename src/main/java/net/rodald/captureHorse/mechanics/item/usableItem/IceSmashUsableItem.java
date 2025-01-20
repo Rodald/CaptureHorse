@@ -8,10 +8,7 @@ import net.rodald.captureHorse.mechanics.item.UsableItem;
 import net.rodald.captureHorse.scoreboard.Teams;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -21,7 +18,7 @@ import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 
-public class IceSmash extends UsableItem {
+public class IceSmashUsableItem extends UsableItem {
     @Override
     public Material getMaterial() {
         return Material.DIAMOND_AXE;
@@ -122,6 +119,40 @@ public class IceSmash extends UsableItem {
         Location targetLocation = target.getLocation();
 
         spawnAndPlaceIceBlocks(world, targetLocation);
+    }
+
+    @Override
+    public void handleTick(Player player) {
+        for (FallingBlock fallingBlock : player.getWorld().getEntitiesByClass(FallingBlock.class)) {
+            if (fallingBlock.getBlockData().getMaterial() != Material.FROSTED_ICE) {
+                continue;
+            }
+
+            for (Entity nearbyEntity : fallingBlock.getNearbyEntities(2, 2, 2)) {
+                if (nearbyEntity instanceof LivingEntity livingEntity) {
+                    if (nearbyEntity instanceof Player nearbyPlayer) {
+                        if (Teams.getEntityTeam(player) != null && Teams.getEntityTeam(nearbyPlayer) != null) {
+                            if (Teams.getEntityTeam(player).equals(Teams.getEntityTeam(nearbyPlayer))) {
+                                continue;
+                            }
+                        } else {
+                            continue;
+                        }
+                    }
+
+                    if (!(livingEntity.getFreezeTicks() > 0)) {
+                        fallingBlock.remove();
+
+                        livingEntity.getWorld().playSound(livingEntity.getLocation(), Sound.BLOCK_GLASS_BREAK, 1, 1);
+                        livingEntity.getWorld().spawnParticle(Particle.SNOWFLAKE, livingEntity.getLocation(), 20, 1, 2, 1, 0);
+                        livingEntity.setFreezeTicks(400);
+                    }
+                    livingEntity.setFreezeTicks(400);
+
+                    break;
+                }
+            }
+        }
     }
 
     private void spawnAndPlaceIceBlocks(World world, Location location) {
