@@ -3,18 +3,14 @@ package net.rodald.captureHorse.mechanics.item.usableItem;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import net.rodald.captureHorse.CaptureHorse;
 import net.rodald.captureHorse.mechanics.item.UsableItem;
-import net.rodald.captureHorse.scoreboard.Teams;
-import org.bukkit.*;
-import org.bukkit.block.Block;
-import org.bukkit.entity.*;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 
@@ -37,7 +33,7 @@ public class KatanaUsableItem extends UsableItem {
     }
 
     @Override
-    public int getCooldown() { return 600; };
+    public int getCooldown() { return 600; }
 
 
     @Override
@@ -52,6 +48,25 @@ public class KatanaUsableItem extends UsableItem {
     @Override
     public void handleRightClick(PlayerInteractEvent e) {
         Player player = e.getPlayer();
+
+        switch (selectedSlot) {
+            // lower damaging sword slash
+            case 0 -> {
+
+            }
+            // single strike low damage dash
+            case 1 -> {
+            }
+
+            // single ok damage attack that does extra damage on critical hit
+            case 2 -> {
+
+            }
+            // or higher
+            // act like a normal axe with an above average damage with regular crit
+            // , but you take 2 hearts less fall damage
+            // while any other than the 4 slots && shift  
+        }
     }
 
     @Override
@@ -61,7 +76,11 @@ public class KatanaUsableItem extends UsableItem {
 
     @Override
     public void handleTick(Player player) {
-        selectedSlot = player.getInventory().getHeldItemSlot();
+        PlayerInventory inventory = player.getInventory();
+
+        if (inventory.getItemInMainHand() == this.createItem()) {
+            selectedSlot = inventory.getHeldItemSlot();
+        }
     }
 
     @Override
