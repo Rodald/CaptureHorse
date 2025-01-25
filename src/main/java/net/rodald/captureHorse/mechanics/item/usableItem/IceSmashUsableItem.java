@@ -23,6 +23,7 @@ public class IceSmashUsableItem extends UsableItem {
     public Material getMaterial() {
         return Material.DIAMOND_AXE;
     }
+
     @Override
     public Component getItemName() {
         return applyGradient("Ice Hammer", TextColor.color(0x00FFFF), TextColor.color(0xA3FF));
@@ -46,7 +47,7 @@ public class IceSmashUsableItem extends UsableItem {
 
     @Override
     public int getCustomModelData() {
-        return 0;
+        return 255;
     }
     private static final double BRIDGE_LENGTH = 100;
     private static final double CURVE_STRENGTH = 2;

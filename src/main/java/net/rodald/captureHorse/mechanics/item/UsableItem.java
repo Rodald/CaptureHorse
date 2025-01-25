@@ -4,7 +4,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.rodald.captureHorse.mechanics.Item;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -16,11 +15,11 @@ import java.util.Map;
 
 public abstract class UsableItem extends Item {
     // Eine Map, die alle registrierten Item enthält
-    private static final Map<Component, UsableItem> usableItems = new HashMap<>();
+    private static final Map<Integer, UsableItem> usableItems = new HashMap<>();
     private static final Map<Player, Long> cooldowns = new HashMap<>();
 
     public UsableItem() {
-        usableItems.put(getItemName(), this);
+        usableItems.put(getCustomModelData(), this);
     }
     public boolean clearItemOnUse() { return false; };
     public abstract void handleRightClick(PlayerInteractEvent e);
@@ -84,7 +83,7 @@ public abstract class UsableItem extends Item {
         handleTick(player);
     }
 
-    public static UsableItem getItemByName(Component name) {
-        return usableItems.get(name);
+    public static UsableItem getItemByCustomModelData(int customModelData) {
+        return usableItems.get(customModelData);
     }
 }

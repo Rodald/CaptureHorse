@@ -23,8 +23,8 @@ public class UsableItemTickHandler {
                     ItemStack itemStack = player.getInventory().getItemInMainHand();
                         ItemMeta meta = itemStack.getItemMeta();
                         if (meta != null && meta.hasDisplayName()) {
-                            Component displayName = meta.displayName();
-                            UsableItem usableItem = UsableItem.getItemByName(displayName);
+                            int customModelData = meta.getCustomModelData();
+                            UsableItem usableItem = UsableItem.getItemByCustomModelData(customModelData);
 
                             if (usableItem != null) {
                                 usableItem.handleItemTick(player);

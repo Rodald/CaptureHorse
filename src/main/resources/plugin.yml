@@ -3,3 +3,7 @@ version: '1.0-SNAPSHOT'
 main: net.rodald.captureHorse.CaptureHorse
 api-version: '1.21'
 authors: [ Rodald ]
+
+commands:
+  weapon:
+    usage: /weapon
