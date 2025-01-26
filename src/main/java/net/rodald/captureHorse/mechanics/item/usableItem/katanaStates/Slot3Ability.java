@@ -18,6 +18,11 @@ public class Slot3Ability implements KatanaAbility {
     }
 
     @Override
+    public long getCooldown() {
+        return 0;
+    }
+
+    @Override
     public void prepareItem(ItemStack item) {
 
     }

@@ -9,7 +9,9 @@ import net.rodald.captureHorse.mechanics.item.usableItem.katanaStates.Slot0Abili
 import net.rodald.captureHorse.mechanics.item.usableItem.katanaStates.Slot1Ability;
 import net.rodald.captureHorse.mechanics.item.usableItem.katanaStates.Slot2Ability;
 import net.rodald.captureHorse.mechanics.item.usableItem.katanaStates.Slot3Ability;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -24,6 +26,7 @@ import java.util.Map;
 public class KatanaUsableItem extends UsableItem {
     private int selectedSlot;
     private final Map<Integer, KatanaAbility> abilities = new HashMap<>();
+    private final Map<KatanaAbility, Long> cooldowns = new HashMap<>();
 
     public KatanaUsableItem() {
         // Hier die Fähigkeiten für jeden Slot registrieren
@@ -57,11 +60,6 @@ public class KatanaUsableItem extends UsableItem {
     }
 
     @Override
-    public int getCooldown() {
-        return 200;
-    }
-
-    @Override
     protected void prepareItem(ItemStack item) {
         KatanaAbility ability = abilities.getOrDefault(selectedSlot, null);
         ability.prepareItem(item);
@@ -80,7 +78,15 @@ public class KatanaUsableItem extends UsableItem {
         KatanaAbility ability = abilities.getOrDefault(selectedSlot, null);
 
         if (ability != null) {
-            return ability.handleRightClick(event);
+            if (getRemainingTimeInTicks() > 0) {
+                double remainingTime = getRemainingTimeInTicks();
+                player.sendMessage(Component.text(String.format("Your ability is on cooldown: %.2f seconds.", remainingTime), NamedTextColor.RED));
+                player.playSound(player, Sound.ENTITY_PLAYER_TELEPORT, 1, 1);
+            } else {
+                setCooldown();
+                player.setCooldown(this.getMaterial(), (int) getRemainingTimeInTicks());
+                return ability.handleRightClick(event);
+            }
         } else {
             player.sendMessage("No ability assigned for this slot.");
         }
@@ -103,7 +109,11 @@ public class KatanaUsableItem extends UsableItem {
     @Override
     public void handleTick(Player player) {
         PlayerInventory inventory = player.getInventory();
+        int lastSelectedSlot = selectedSlot;
         selectedSlot = inventory.getHeldItemSlot();
+        if (lastSelectedSlot != selectedSlot) {
+            player.setCooldown(this.getMaterial(), (int) getRemainingTimeInTicks());
+        }
 
         KatanaAbility ability = abilities.getOrDefault(selectedSlot, null);
 
@@ -131,4 +141,25 @@ public class KatanaUsableItem extends UsableItem {
     public void playSound(Player player) {
         // Sound-Logik hier einfügen
     }
+
+    private void setCooldown() {
+        cooldowns.put(abilities.getOrDefault(selectedSlot, null), System.currentTimeMillis());
+    }
+
+    public long getRemainingTimeInTicks() {
+        KatanaAbility ability = abilities.getOrDefault(selectedSlot, null); // Hole die aktuelle Fähigkeit
+        if (ability == null || !cooldowns.containsKey(ability)) {
+            return 0;
+        }
+
+        long elapsedTime = System.currentTimeMillis() - cooldowns.get(ability); // Vergangene Zeit in Millisekunden
+        long remainingTimeMillis = (ability.getCooldown() * 50L) - elapsedTime; // Berechne verbleibende Zeit in Millisekunden
+
+        if (remainingTimeMillis <= 0) {
+            return 0; // Kein Cooldown mehr aktiv
+        }
+
+        return remainingTimeMillis / 50; // Verbleibende Zeit in Ticks
+    }
+
 }

@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 
 public interface KatanaAbility {
     String getAbilityName();
-
+    long getCooldown();
     void prepareItem(ItemStack item);
     boolean handleRightClick(PlayerInteractEvent event);
     void handleAttack(EntityDamageByEntityEvent event);

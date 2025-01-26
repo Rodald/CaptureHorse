@@ -63,7 +63,7 @@ public abstract class UsableItem extends Item {
     }
 
     private void setCooldown(Player player) {
-        player.setCooldown(this.createItem(), getCooldown());
+        // player.setCooldown(this.createItem(), getCooldown());
         cooldowns.put(player, System.currentTimeMillis());
     }
 

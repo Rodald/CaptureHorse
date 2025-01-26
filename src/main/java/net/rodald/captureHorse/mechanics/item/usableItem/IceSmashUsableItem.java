@@ -58,6 +58,7 @@ public class IceSmashUsableItem extends UsableItem {
     public boolean handleRightClick(PlayerInteractEvent e) {
         Player player = e.getPlayer();
         buildIceBridge(player.getLocation().add(0, -1, 0));
+        player.setCooldown(this.createItem(), getCooldown());
         return true;
     }
 

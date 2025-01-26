@@ -25,6 +25,11 @@ public class Slot1Ability implements KatanaAbility {
     }
 
     @Override
+    public long getCooldown() {
+        return 20;
+    }
+
+    @Override
     public void prepareItem(ItemStack item) {
 
     }
