@@ -55,9 +55,10 @@ public class IceSmashUsableItem extends UsableItem {
     private static final int BRIDGE_WIDTH = 1;
 
     @Override
-    public void handleRightClick(PlayerInteractEvent e) {
+    public boolean handleRightClick(PlayerInteractEvent e) {
         Player player = e.getPlayer();
         buildIceBridge(player.getLocation().add(0, -1, 0));
+        return true;
     }
 
     // Methode zum Erstellen der Eisbrücke

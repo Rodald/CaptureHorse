@@ -30,7 +30,7 @@ public class Slot1Ability implements KatanaAbility {
     }
 
     @Override
-    public void handleRightClick(PlayerInteractEvent event) {
+    public boolean handleRightClick(PlayerInteractEvent event) {
         Player player = event.getPlayer();
 
         Vector direction = player.getLocation().getDirection().normalize().multiply(1.5);
@@ -72,6 +72,7 @@ public class Slot1Ability implements KatanaAbility {
                 }
             }
         }.runTaskTimer(CaptureHorse.getInstance(), 0L, 1L);
+        return true;
     }
 
     @Override

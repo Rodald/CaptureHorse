@@ -8,7 +8,7 @@ public interface KatanaAbility {
     String getAbilityName();
 
     void prepareItem(ItemStack item);
-    void handleRightClick(PlayerInteractEvent event);
+    boolean handleRightClick(PlayerInteractEvent event);
     void handleAttack(EntityDamageByEntityEvent event);
     void handleTick(Player player);
 }

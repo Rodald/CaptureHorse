@@ -64,8 +64,9 @@ public class Slot0Ability implements KatanaAbility {
 
 
     @Override
-    public void handleRightClick(PlayerInteractEvent event) {
+    public boolean handleRightClick(PlayerInteractEvent event) {
         event.getPlayer().sendMessage("Slot 0: Basic Sword Slash activated!");
+        return false;
     }
 
     @Override

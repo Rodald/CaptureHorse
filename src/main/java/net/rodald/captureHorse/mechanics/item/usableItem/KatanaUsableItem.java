@@ -7,6 +7,8 @@ import net.rodald.captureHorse.interfaces.KatanaAbility;
 import net.rodald.captureHorse.mechanics.item.UsableItem;
 import net.rodald.captureHorse.mechanics.item.usableItem.katanaStates.Slot0Ability;
 import net.rodald.captureHorse.mechanics.item.usableItem.katanaStates.Slot1Ability;
+import net.rodald.captureHorse.mechanics.item.usableItem.katanaStates.Slot2Ability;
+import net.rodald.captureHorse.mechanics.item.usableItem.katanaStates.Slot3Ability;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -27,7 +29,13 @@ public class KatanaUsableItem extends UsableItem {
         // Hier die Fähigkeiten für jeden Slot registrieren
         abilities.put(0, new Slot0Ability());
         abilities.put(1, new Slot1Ability());
-//        abilities.put(2, new Slot2Ability());
+        abilities.put(2, new Slot2Ability());
+        abilities.put(3, new Slot3Ability());
+        abilities.put(4, new Slot3Ability());
+        abilities.put(5, new Slot3Ability());
+        abilities.put(6, new Slot3Ability());
+        abilities.put(7, new Slot3Ability());
+        abilities.put(8, new Slot3Ability());
         // Füge weitere Slots hinzu
     }
 
@@ -50,7 +58,7 @@ public class KatanaUsableItem extends UsableItem {
 
     @Override
     public int getCooldown() {
-        return 600;
+        return 200;
     }
 
     @Override
@@ -67,15 +75,17 @@ public class KatanaUsableItem extends UsableItem {
     }
 
     @Override
-    public void handleRightClick(PlayerInteractEvent event) {
+    public boolean handleRightClick(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         KatanaAbility ability = abilities.getOrDefault(selectedSlot, null);
 
         if (ability != null) {
-            ability.handleRightClick(event);
+            return ability.handleRightClick(event);
         } else {
             player.sendMessage("No ability assigned for this slot.");
         }
+
+        return false;
     }
 
     @Override

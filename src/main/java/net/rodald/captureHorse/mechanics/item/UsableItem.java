@@ -22,7 +22,7 @@ public abstract class UsableItem extends Item {
         usableItems.put(getCustomModelData(), this);
     }
     public boolean clearItemOnUse() { return false; };
-    public abstract void handleRightClick(PlayerInteractEvent e);
+    public abstract boolean handleRightClick(PlayerInteractEvent e);
     public abstract void handleAttack(EntityDamageByEntityEvent e);
     public abstract void handleTick(Player player);
 
@@ -45,9 +45,7 @@ public abstract class UsableItem extends Item {
                 p.getInventory().setItemInMainHand(amount > 0 ? item : null);
             }
 
-            handleRightClick(e);
-
-            if (p.getGameMode() != GameMode.CREATIVE) {
+            if (p.getGameMode() != GameMode.CREATIVE && handleRightClick(e)) {
                 setCooldown(p);
             }
 
