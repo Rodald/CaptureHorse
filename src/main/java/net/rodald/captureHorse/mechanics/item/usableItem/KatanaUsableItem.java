@@ -6,6 +6,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.rodald.captureHorse.interfaces.KatanaAbility;
 import net.rodald.captureHorse.mechanics.item.UsableItem;
 import net.rodald.captureHorse.mechanics.item.usableItem.katanaStates.Slot0Ability;
+import net.rodald.captureHorse.mechanics.item.usableItem.katanaStates.Slot1Ability;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -25,7 +26,7 @@ public class KatanaUsableItem extends UsableItem {
     public KatanaUsableItem() {
         // Hier die Fähigkeiten für jeden Slot registrieren
         abilities.put(0, new Slot0Ability());
-//        abilities.put(1, new Slot1Ability());
+        abilities.put(1, new Slot1Ability());
 //        abilities.put(2, new Slot2Ability());
         // Füge weitere Slots hinzu
     }
@@ -92,10 +93,7 @@ public class KatanaUsableItem extends UsableItem {
     @Override
     public void handleTick(Player player) {
         PlayerInventory inventory = player.getInventory();
-
-        if (inventory.getItemInMainHand().isSimilar(this.createItem())) {
-            selectedSlot = inventory.getHeldItemSlot();
-        }
+        selectedSlot = inventory.getHeldItemSlot();
 
         KatanaAbility ability = abilities.getOrDefault(selectedSlot, null);
 

@@ -25,38 +25,38 @@ public class Slot0Ability implements KatanaAbility {
     }
 
     @Override
-    public ItemStack prepareItem(ItemStack item) {
-        ItemMeta meta = item.getItemMeta();
-
-        if (meta != null) {
-            // UUIDs für die Attribute (für Eindeutigkeit)
-            UUID attackDamageUUID = UUID.randomUUID();
-            UUID attackSpeedUUID = UUID.randomUUID();
-
-            AttributeModifier attackDamageModifier = new AttributeModifier(
-                    attackDamageUUID,
-                    "generic.attackDamage", // Eindeutiger Name
-                    8.0, // Angriffsschaden-Wert
-                    AttributeModifier.Operation.ADD_NUMBER, // Hinzufügen
-                    EquipmentSlot.HAND // Gültig in der Haupthand
-            );
-            meta.addAttributeModifier(Attribute.ATTACK_DAMAGE, attackDamageModifier);
-
-            // Angriffsgeschwindigkeit-Modifier hinzufügen
-            AttributeModifier attackSpeedModifier = new AttributeModifier(
-                    attackSpeedUUID,
-                    "generic.attackSpeed", // Eindeutiger Name
-                    1.6, // Angriffsgeschwindigkeit-Wert
-                    AttributeModifier.Operation.ADD_NUMBER, // Hinzufügen
-                    EquipmentSlot.HAND // Gültig in der Haupthand
-            );
-            meta.addAttributeModifier(Attribute.ATTACK_SPEED, attackSpeedModifier);
-
-            // Aktualisiertes Meta setzen
-            item.setItemMeta(meta);
-        }
-
-        return item;
+    public void prepareItem(ItemStack item) {
+//        ItemMeta meta = item.getItemMeta();
+//
+//        if (meta != null) {
+//            // UUIDs für die Attribute (für Eindeutigkeit)
+//            UUID attackDamageUUID = UUID.randomUUID();
+//            UUID attackSpeedUUID = UUID.randomUUID();
+//
+//            AttributeModifier attackDamageModifier = new AttributeModifier(
+//                    attackDamageUUID,
+//                    "generic.attackDamage", // Eindeutiger Name
+//                    8.0, // Angriffsschaden-Wert
+//                    AttributeModifier.Operation.ADD_NUMBER, // Hinzufügen
+//                    EquipmentSlot.HAND // Gültig in der Haupthand
+//            );
+//            meta.addAttributeModifier(Attribute.ATTACK_DAMAGE, attackDamageModifier);
+//
+//            // Angriffsgeschwindigkeit-Modifier hinzufügen
+//            AttributeModifier attackSpeedModifier = new AttributeModifier(
+//                    attackSpeedUUID,
+//                    "generic.attackSpeed", // Eindeutiger Name
+//                    1.6, // Angriffsgeschwindigkeit-Wert
+//                    AttributeModifier.Operation.ADD_NUMBER, // Hinzufügen
+//                    EquipmentSlot.HAND // Gültig in der Haupthand
+//            );
+//            meta.addAttributeModifier(Attribute.ATTACK_SPEED, attackSpeedModifier);
+//
+//            // Aktualisiertes Meta setzen
+//            item.setItemMeta(meta);
+//        }
+//
+//        return item;
     }
 
 
