@@ -44,7 +44,7 @@ public abstract class Item {
         if (meta != null) {
             meta.displayName(getItemName());
             List<Component> modifiedLore = getItemLore().stream()
-                    .map(component -> component.decoration(TextDecoration.ITALIC, false)) // Italics entfernen
+                    .map(component -> component.decoration(TextDecoration.ITALIC, false))
                     .toList();
 
             meta.lore(modifiedLore);

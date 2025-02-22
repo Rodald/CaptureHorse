@@ -5,8 +5,6 @@ import net.rodald.captureHorse.listener.BlockFadeListener;
 import net.rodald.captureHorse.listener.EntityDamageByEntityListener;
 import net.rodald.captureHorse.listener.PlayerInteractListener;
 import net.rodald.captureHorse.listener.UsableItemTickHandler;
-import net.rodald.captureHorse.mechanics.item.usableItem.IceSmashUsableItem;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;

@@ -1,6 +1,5 @@
 package net.rodald.captureHorse.listener;
 
-import net.kyori.adventure.text.Component;
 import net.rodald.captureHorse.mechanics.item.UsableItem;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

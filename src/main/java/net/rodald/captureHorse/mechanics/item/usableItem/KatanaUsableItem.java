@@ -29,7 +29,6 @@ public class KatanaUsableItem extends UsableItem {
     private final Map<KatanaAbility, Long> cooldowns = new HashMap<>();
 
     public KatanaUsableItem() {
-        // Hier die Fähigkeiten für jeden Slot registrieren
         abilities.put(0, new Slot0Ability());
         abilities.put(1, new Slot1Ability());
         abilities.put(2, new Slot2Ability());
@@ -39,7 +38,6 @@ public class KatanaUsableItem extends UsableItem {
         abilities.put(6, new Slot3Ability());
         abilities.put(7, new Slot3Ability());
         abilities.put(8, new Slot3Ability());
-        // Füge weitere Slots hinzu
     }
 
     @Override
@@ -134,12 +132,12 @@ public class KatanaUsableItem extends UsableItem {
 
     @Override
     public void spawnParticles(Player player) {
-        // Partikel-Logik hier einfügen
+
     }
 
     @Override
     public void playSound(Player player) {
-        // Sound-Logik hier einfügen
+
     }
 
     private void setCooldown() {
@@ -147,19 +145,19 @@ public class KatanaUsableItem extends UsableItem {
     }
 
     public long getRemainingTimeInTicks() {
-        KatanaAbility ability = abilities.getOrDefault(selectedSlot, null); // Hole die aktuelle Fähigkeit
+        KatanaAbility ability = abilities.getOrDefault(selectedSlot, null);
         if (ability == null || !cooldowns.containsKey(ability)) {
             return 0;
         }
 
-        long elapsedTime = System.currentTimeMillis() - cooldowns.get(ability); // Vergangene Zeit in Millisekunden
-        long remainingTimeMillis = (ability.getCooldown() * 50L) - elapsedTime; // Berechne verbleibende Zeit in Millisekunden
+        long elapsedTime = System.currentTimeMillis() - cooldowns.get(ability);
+        long remainingTimeMillis = (ability.getCooldown() * 50L) - elapsedTime;
 
         if (remainingTimeMillis <= 0) {
-            return 0; // Kein Cooldown mehr aktiv
+            return 0;
         }
 
-        return remainingTimeMillis / 50; // Verbleibende Zeit in Ticks
+        return remainingTimeMillis / 50;
     }
 
 }
