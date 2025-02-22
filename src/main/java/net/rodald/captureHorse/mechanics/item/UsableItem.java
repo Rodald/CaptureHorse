@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class UsableItem extends Item {
-    // Eine Map, die alle registrierten Item enthält
     private static final Map<Integer, UsableItem> usableItems = new HashMap<>();
     private static final Map<Player, Long> cooldowns = new HashMap<>();
 
@@ -30,7 +29,6 @@ public abstract class UsableItem extends Item {
     public abstract void playSound(Player p);
     public int getCooldown() { return 0; };
     
-    // Methode zum Behandeln der Item-Action
     public void handleItemAction(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         if (isOnCooldown(p)) {
@@ -63,7 +61,6 @@ public abstract class UsableItem extends Item {
     }
 
     private void setCooldown(Player player) {
-        // player.setCooldown(this.createItem(), getCooldown());
         cooldowns.put(player, System.currentTimeMillis());
     }
 

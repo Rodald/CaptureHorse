@@ -1,18 +1,13 @@
 package net.rodald.captureHorse.mechanics.item.usableItem.katanaStates;
 
 import net.rodald.captureHorse.interfaces.KatanaAbility;
-import net.rodald.captureHorse.scoreboard.Teams;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
-
-import java.util.List;
 
 public class Slot2Ability implements KatanaAbility {
     @Override

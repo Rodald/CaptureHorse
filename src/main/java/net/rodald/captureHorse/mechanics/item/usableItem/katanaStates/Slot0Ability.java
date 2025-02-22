@@ -70,6 +70,6 @@ public class Slot0Ability implements KatanaAbility {
 
     @Override
     public void handleTick(Player player) {
-        // Füge hier Tick-Logik ein, falls nötig
+
     }
 }
