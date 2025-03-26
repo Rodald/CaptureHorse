@@ -159,5 +159,4 @@ public class KatanaUsableItem extends UsableItem {
 
         return remainingTimeMillis / 50;
     }
-
 }
