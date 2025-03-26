@@ -62,7 +62,6 @@ public class IceSmashUsableItem extends UsableItem {
         return true;
     }
 
-    // Methode zum Erstellen der Eisbrücke
     private void buildIceBridge(Location startLocation) {
         Vector direction = startLocation.getDirection().normalize();
         Vector startDirection = direction.clone();
@@ -209,21 +208,20 @@ public class IceSmashUsableItem extends UsableItem {
 
                 for (int i = 0; i < particlesPerRing; i++) {
                     double angle = 2 * Math.PI * i / particlesPerRing;
-                    double noiseX = (Math.random() - 0.5) * 0.5; // Zufällige Abweichung für X
-                    double noiseZ = (Math.random() - 0.5) * 0.5; // Zufällige Abweichung für Z
-                    double noiseY = (Math.random() - 0.3) * 0.25; // Zufällige Höhenabweichung
+                    double noiseX = (Math.random() - 0.5) * 0.5;
+                    double noiseZ = (Math.random() - 0.5) * 0.5;
+                    double noiseY = (Math.random() - 0.3) * 0.25;
 
                     double x = playerX + Math.cos(angle) * currentRadius + noiseX;
                     double z = playerZ + Math.sin(angle) * currentRadius + noiseZ;
                     double y = playerY + yOffset + noiseY;
 
-                    // Zufällige Partikelauswahl für Variation
                     if (Math.random() < 0.3) {
                         p.getWorld().spawnParticle(Particle.SNOWFLAKE, x, y, z, 1, 0, 0, 0, 0);
                     } else {
                         Color startColor = Color.fromRGB(150 + (int) (Math.random() * 50), 200 + (int) (Math.random() * 30), 255);
                         Color endColor = Color.fromRGB(80 + (int) (Math.random() * 50), 130 + (int) (Math.random() * 30), 255);
-                        float size = 1.0f + (float) Math.random(); // Zufällige Größe zwischen 1.0 und 2.0
+                        float size = 1.0f + (float) Math.random();
 
                         p.getWorld().spawnParticle(Particle.DUST_COLOR_TRANSITION, x, y, z, 1, new Particle.DustTransition(startColor, endColor, size));
                     }

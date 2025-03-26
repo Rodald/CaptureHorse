@@ -55,7 +55,7 @@ public class Slot1Ability implements KatanaAbility {
                     return;
                 }
 
-                List<Entity> nearbyEntities = player.getNearbyEntities(1.0, 1.0, 1.0); // Kollisionsradius
+                List<Entity> nearbyEntities = player.getNearbyEntities(1.0, 1.0, 1.0);
 
                 for (Entity entity : nearbyEntities) {
                     if (!(entity instanceof LivingEntity target) || entity == player) {
