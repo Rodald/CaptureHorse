@@ -7,8 +7,12 @@ import net.rodald.captureHorse.CaptureHorse;
 import net.rodald.captureHorse.mechanics.item.UsableItem;
 import net.rodald.captureHorse.scoreboard.Teams;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -16,9 +20,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
+import java.util.*;
 
 public class IceSmashUsableItem extends UsableItem {
+    // ability that converts all placed ice into strength
     @Override
     public Material getMaterial() {
         return Material.DIAMOND_AXE;
@@ -36,9 +41,11 @@ public class IceSmashUsableItem extends UsableItem {
         return lore;
     }
 
-    @Override
-    public int getCooldown() { return 600; };
 
+    @Override
+    public int getCooldown() {
+        return 0;
+    }
 
     @Override
     protected void prepareItem(ItemStack item) {
@@ -49,17 +56,122 @@ public class IceSmashUsableItem extends UsableItem {
     public int getCustomModelData() {
         return 255;
     }
+
+    private static final double TIME_MIN = 7;
+    private static final double TIME_MAX = 10;
     private static final double BRIDGE_LENGTH = 100;
     private static final double CURVE_STRENGTH = 2;
     private static final int BLOCKS_PER_SECOND = 10;
     private static final int BRIDGE_WIDTH = 1;
+    private static final int GROUND_POUND_RANGE = 40;
+    private int blockShield;
+    private double rotater;
+    private HashMap<FallingBlock, Double> blockPosition = new HashMap<>();
+    private HashMap<FallingBlock, Double> blockLifeTime = new HashMap<>();
 
     @Override
-    public boolean handleRightClick(PlayerInteractEvent e) {
-        Player player = e.getPlayer();
-        buildIceBridge(player.getLocation().add(0, -1, 0));
-        player.setCooldown(this.createItem(), getCooldown());
-        return true;
+    public boolean handleRightClick(PlayerInteractEvent event) {
+
+        // cancels the event so players cant put the item into an armor stand or something like that
+        event.setCancelled(true);
+        Player player = event.getPlayer();
+        if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+
+            if (event.getBlockFace() != BlockFace.UP) return false;
+            // ground pound
+            double groundPoundStrength = player.getVelocity().getY();
+
+            // only activate ground pound if groundPoundStrength is < -1
+            if (!(groundPoundStrength < -1)) return false;
+
+            player.setFallDistance(0);
+            player.setVelocity(new Vector(0, 0, 0));
+
+            Location playerLocation = player.getLocation();
+
+            double damage = player.getAttribute(Attribute.ATTACK_DAMAGE).getValue();
+            int brokenIce;
+            List<Entity> nearbyEntities = player.getNearbyEntities(GROUND_POUND_RANGE, GROUND_POUND_RANGE, GROUND_POUND_RANGE);
+
+            brokenIce = breakIce(playerLocation, (int) Math.abs(groundPoundStrength) * 50);
+            for (Entity entity : nearbyEntities) {
+                Location entityLocation = entity.getLocation();
+
+                double distance = playerLocation.distance(entityLocation);
+
+                double knockbackStrength = calculateKnockbackMultiplier(groundPoundStrength, damage, distance);
+
+                Bukkit.broadcastMessage("distance: " + entity.getName() + " = " + distance);
+                // calculate knockback direction
+                Vector direction = entityLocation.toVector().subtract(playerLocation.toVector())
+                        .normalize().multiply(knockbackStrength);
+                direction.setY(knockbackStrength);
+
+                // update entity knockback to calculated one
+                entity.setVelocity(direction);
+                entity.setFreezeTicks(brokenIce * 700);
+            }
+        } else if (event.getAction().isRightClick()) {
+            // ice brige
+            buildIceBridge(player.getLocation().add(0, -1, 0));
+
+            player.setCooldown(this.createItem(), getCooldown());
+            return true;
+        }
+
+        return false;
+    }
+
+    private int breakIce(Location location, int distance) {
+        int iceBreak = 0;
+        if (distance == 0) {
+            return iceBreak;
+        }
+        Bukkit.broadcastMessage("Recursion at " + location.toString() + " distance: " + distance);
+
+        for (int x = -distance; x < distance; x++) {
+            for (int y = -3; y < distance; y++) {
+                for (int z = -distance; z < distance; z++) {
+                    if (location.clone().add(x, y, z).getBlock().getType() == Material.FROSTED_ICE) {
+                        location.clone().add(x, y, z).getBlock().setType(Material.AIR);
+                        iceBreak = breakIce(
+                                new Location(location.getWorld(),
+                                        location.getX() + x, location.getY() + y, location.getZ() + z),
+                                distance / 3) + 1;
+                    }
+                }
+            }
+        }
+
+        return iceBreak;
+    }
+
+    @Override
+    public void handleBlockBreak(BlockBreakEvent event) {
+        event.setCancelled(true);
+
+        Block block = event.getBlock();
+        World world = block.getWorld();
+        Location location = block.getLocation();
+
+        block.setType(Material.AIR);
+        Bukkit.broadcastMessage("has broken correct block");
+        blockShield += 1;
+        FallingBlock iceBlock = (FallingBlock) world.spawnEntity(location, EntityType.FALLING_BLOCK);
+        iceBlock.setBlockData(Material.FROSTED_ICE.createBlockData());
+        iceBlock.setGravity(false);
+        Random random = new Random();
+        blockLifeTime.put(iceBlock, random.nextDouble(TIME_MIN, TIME_MAX));
+        blockPosition.put(iceBlock, 1d);
+        recalcBlocks();
+    }
+
+    private double calculateKnockbackMultiplier(double velocity, double damage, double distance) {
+        if ((damage * (-24 * (velocity * damage) - (8 * distance) - 160)) / (10 * (distance + 20)) <= 0) {
+            return 0;
+        } else {
+            return (damage * (-24 * (velocity * damage) - (8 * distance) - 160)) / (10 * (distance + 20));
+        }
     }
 
     private void buildIceBridge(Location startLocation) {
@@ -105,10 +217,11 @@ public class IceSmashUsableItem extends UsableItem {
     }
 
     @Override
-    public void handleAttack(EntityDamageByEntityEvent e) {
-        Player damager = (Player) e.getDamager();
-        Entity target = e.getEntity();
-        if (e.getEntity() instanceof Player targetPlayer) {
+    public void handleAttack(EntityDamageByEntityEvent event) {
+        Player damager = (Player) event.getDamager();
+        Entity target = event.getEntity();
+
+        if (event.getEntity() instanceof Player targetPlayer) {
             if (Teams.getEntityTeam(damager) != null && Teams.getEntityTeam(targetPlayer) != null) {
                 if (Teams.getEntityTeam(damager) == Teams.getEntityTeam(targetPlayer)) {
                     return;
@@ -120,7 +233,7 @@ public class IceSmashUsableItem extends UsableItem {
         world.playSound(target.getLocation(), Sound.BLOCK_GLASS_BREAK, 1, 1);
         Location targetLocation = target.getLocation();
 
-        spawnAndPlaceIceBlocks(world, targetLocation);
+        spawnAndPlaceIceBlocks(targetLocation);
     }
 
     @Override
@@ -154,7 +267,7 @@ public class IceSmashUsableItem extends UsableItem {
                 if (nearbyEntity instanceof LivingEntity livingEntity) {
                     if (nearbyEntity instanceof Player nearbyPlayer) {
                         if (Teams.getEntityTeam(player) != null && Teams.getEntityTeam(nearbyPlayer) != null) {
-                            if (Teams.getEntityTeam(player).equals(Teams.getEntityTeam(nearbyPlayer))) {
+                            if (Objects.equals(Teams.getEntityTeam(player), Teams.getEntityTeam(nearbyPlayer))) {
                                 continue;
                             }
                         } else {
@@ -177,7 +290,35 @@ public class IceSmashUsableItem extends UsableItem {
         }
     }
 
-    private void spawnAndPlaceIceBlocks(World world, Location location) {
+    public void onDisable(Player player) {
+        Bukkit.broadcast(Component.text("onDisable! Removing " + blockLifeTime.size() + " entries"
+                , NamedTextColor.RED));
+
+        for (Map.Entry<FallingBlock, Double> fallingBlock : blockLifeTime.entrySet()) {
+            blockDestroyer((FallingBlock) fallingBlock);
+        }
+    }
+
+    private void blockDestroyer(FallingBlock block) {
+        block.setGravity(true);
+        Bukkit.broadcastMessage("blocked destroyed");
+        blockLifeTime.remove(block);
+        blockPosition.remove(block);
+        blockShield--;
+        recalcBlocks();
+    }
+
+    private void recalcBlocks() {
+        int cntr = 0;
+        Bukkit.broadcastMessage("racalculated");
+        for (Map.Entry<FallingBlock, Double> fallingBlock : blockLifeTime.entrySet()) {
+            cntr++;
+            blockPosition.put((FallingBlock) fallingBlock, ((2 * Math.PI) * ((double) cntr / blockShield)));
+        }
+    }
+
+    private void spawnAndPlaceIceBlocks(Location location) {
+        World world = location.getWorld();
         int iceBlockCount = 6;
         double baseVelocityMultiplier = 0.5;
 
@@ -198,12 +339,6 @@ public class IceSmashUsableItem extends UsableItem {
             iceBlock.setDropItem(false);
         }
     }
-
-
-
-
-
-
 
     @Override
     public void spawnParticles(Player p) {

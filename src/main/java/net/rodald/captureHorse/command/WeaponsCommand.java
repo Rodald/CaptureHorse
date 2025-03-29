@@ -2,6 +2,7 @@ package net.rodald.captureHorse.command;
 
 import net.rodald.captureHorse.mechanics.item.usableItem.IceSmashUsableItem;
 import net.rodald.captureHorse.mechanics.item.usableItem.KatanaUsableItem;
+import net.rodald.captureHorse.mechanics.item.usableItem.MonkStaffUsableItem;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -14,6 +15,7 @@ public class WeaponsCommand implements CommandExecutor {
         if (sender instanceof Player player) {
             player.getInventory().addItem(new IceSmashUsableItem().createItem());
             player.getInventory().addItem(new KatanaUsableItem().createItem());
+            player.getInventory().addItem(new MonkStaffUsableItem().createItem());
         }
 
         return true;

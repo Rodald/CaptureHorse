@@ -25,6 +25,18 @@ public class MonkStaffUsableItem extends UsableItem {
 
     // chargeable hop distance
     private double hopAmount;
+
+    // Default state = NONE
+    private MonkStaffPlayerState playerState = MonkStaffPlayerState.NONE;
+    private final int MAX_HOPS = 5;
+    private final int DELAY_MEDITATION = 300;
+    private final int BUFFS_MEDITATION = 600;
+
+    @Override
+    public int getCooldown() {
+        return 15;
+    }
+
     @Override
     public boolean handleRightClick(PlayerInteractEvent event) {
         Player player = event.getPlayer();
@@ -138,21 +150,24 @@ public class MonkStaffUsableItem extends UsableItem {
 
     @Override
     public Material getMaterial() {
-        return null;
+        return Material.STICK;
     }
 
     @Override
     public Component getItemName() {
-        return null;
+        return Component.text("Monk Staff").decoration(TextDecoration.ITALIC, false);
     }
 
     @Override
     public ArrayList<Component> getItemLore() {
-        return null;
+        ArrayList<Component> lore = new ArrayList<>();
+        lore.add(Component.text(""));
+
+        return lore;
     }
 
     @Override
     public int getCustomModelData() {
-        return 0;
+        return 257;
     }
 }

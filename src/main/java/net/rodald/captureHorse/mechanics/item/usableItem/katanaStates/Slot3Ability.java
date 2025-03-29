@@ -24,7 +24,6 @@ public class Slot3Ability implements KatanaAbility {
 
     @Override
     public void prepareItem(ItemStack item) {
-
     }
 
     @Override

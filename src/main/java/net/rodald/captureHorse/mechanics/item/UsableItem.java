@@ -1,5 +1,7 @@
 package net.rodald.captureHorse.mechanics.item;
 
+import com.destroystokyo.paper.event.player.PlayerJumpEvent;
+import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.rodald.captureHorse.mechanics.Item;
@@ -9,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -37,20 +40,37 @@ public abstract class UsableItem extends Item {
             player.sendMessage(Component.text(String.format("Your ability is on cooldown: %.2f seconds.", remainingTime), NamedTextColor.BLACK));
             player.playSound(player, Sound.ENTITY_PLAYER_TELEPORT, 1, 1);
         } else {
-            ItemStack item = e.getItem();
+            ItemStack item = event.getItem();
             if (clearItemOnUse()) {
                 int amount = item.getAmount() - 1;
                 item.setAmount(amount);
-                p.getInventory().setItemInMainHand(amount > 0 ? item : null);
+                player.getInventory().setItemInMainHand(amount > 0 ? item : null);
             }
 
-            if (p.getGameMode() != GameMode.CREATIVE && handleRightClick(e)) {
-                setCooldown(p);
+            if (player.getGameMode() != GameMode.CREATIVE && handleRightClick(event)) {
+                setCooldown(player);
             }
 
-            spawnParticles(p);
-            playSound(p);
+            spawnParticles(player);
+            playSound(player);
         }
+    }
+
+    public void handleJumpEvent(PlayerJumpEvent event) {
+
+    }
+
+    public void handleBlockBreak(BlockBreakEvent event) {
+
+    }
+
+    /**
+     *  Gets called when the player switches from an UsableItem to another item
+     *
+     * @param player PlayerInventorySlotChangeEvent
+     */
+    public void onDisable(Player player) {
+
     }
 
     private boolean isOnCooldown(Player player) {

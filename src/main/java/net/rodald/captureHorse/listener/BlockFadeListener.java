@@ -8,6 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockFadeEvent;
 
 public class BlockFadeListener implements Listener {
+
     @EventHandler
     public void onBlockFade(BlockFadeEvent event) {
         if (event.getBlock().getType() == Material.FROSTED_ICE) {
