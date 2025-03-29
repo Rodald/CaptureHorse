@@ -26,7 +26,7 @@ public class Slot1Ability implements KatanaAbility {
 
     @Override
     public long getCooldown() {
-        return 20;
+        return 80;
     }
 
     @Override
@@ -83,6 +83,36 @@ public class Slot1Ability implements KatanaAbility {
     @Override
     public void handleAttack(EntityDamageByEntityEvent event) {
 
+        Entity player = event.getDamager();
+
+        Vector direction = player.getLocation().getDirection().normalize().multiply(1.5);
+        player.setVelocity(direction);
+
+        player.getWorld().spawnParticle(Particle.CLOUD, player.getLocation(), 10, 0.5, 2, 0.5, 0.1);
+        player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
+
+        new BukkitRunnable() {
+            int ticks = 0;
+
+            @Override
+            public void run() {
+                ticks++;
+                if (ticks > 10) {
+                    cancel();
+                    return;
+                }
+
+                List<Entity> nearbyEntities = player.getNearbyEntities(1.0, 1.0, 1.0);
+
+                for (Entity entity : nearbyEntities) {
+                    if (!(entity instanceof LivingEntity target) || entity == player) {
+                        continue;
+                    }
+                    cancel();
+                    return;
+                }
+            }
+        }.runTaskTimer(CaptureHorse.getInstance(), 0L, 1L);
     }
 
     @Override

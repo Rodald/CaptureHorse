@@ -6,6 +6,7 @@ import net.rodald.captureHorse.mechanics.Item;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -21,20 +22,20 @@ public abstract class UsableItem extends Item {
         usableItems.put(getCustomModelData(), this);
     }
     public boolean clearItemOnUse() { return false; };
-    public abstract boolean handleRightClick(PlayerInteractEvent e);
-    public abstract void handleAttack(EntityDamageByEntityEvent e);
-    public abstract void handleTick(Player player);
+    public abstract boolean handleRightClick(PlayerInteractEvent event);
 
-    public abstract void spawnParticles(Player p);
-    public abstract void playSound(Player p);
+    public abstract void handleAttack(EntityDamageByEntityEvent event);
+    public abstract void handleTick(Player player);
+    public abstract void spawnParticles(Player player);
+    public abstract void playSound(Player player);
     public int getCooldown() { return 0; };
     
-    public void handleItemAction(PlayerInteractEvent e) {
-        Player p = e.getPlayer();
-        if (isOnCooldown(p)) {
-            double remainingTime = getRemainingTime(p);
-            p.sendMessage(Component.text(String.format("Your ability is on cooldown: %.2f seconds.", remainingTime), NamedTextColor.RED));
-            p.playSound(p, Sound.ENTITY_PLAYER_TELEPORT, 1, 1);
+    public void handleItemAction(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        if (isOnCooldown(player)) {
+            double remainingTime = getRemainingTime(player);
+            player.sendMessage(Component.text(String.format("Your ability is on cooldown: %.2f seconds.", remainingTime), NamedTextColor.BLACK));
+            player.playSound(player, Sound.ENTITY_PLAYER_TELEPORT, 1, 1);
         } else {
             ItemStack item = e.getItem();
             if (clearItemOnUse()) {

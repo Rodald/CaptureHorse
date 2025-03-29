@@ -125,6 +125,26 @@ public class IceSmashUsableItem extends UsableItem {
 
     @Override
     public void handleTick(Player player) {
+        rotater += 0.01;
+        if (rotater >= 1) {
+            rotater = 0;
+        }
+
+        for (Map.Entry<FallingBlock, Double> fallingBlock : blockLifeTime.entrySet()) {
+            double currentValue = blockLifeTime.get((FallingBlock) fallingBlock);
+            blockLifeTime.put((FallingBlock) fallingBlock, currentValue - 0.05);
+            if (blockLifeTime.get((FallingBlock) fallingBlock) <= 0) {
+                blockDestroyer((FallingBlock) fallingBlock);
+                Bukkit.broadcastMessage("block has timed out.");
+            }
+            Vector offsetFromUnitCircle = new Vector(Math.cos(blockPosition.get((FallingBlock) fallingBlock)), 0, Math.sin(blockPosition.get((FallingBlock) fallingBlock)));
+            Location unitCircleLocation = player.getLocation().add(offsetFromUnitCircle);
+
+            Vector nextBlockPosition = unitCircleLocation.subtract(((FallingBlock) fallingBlock).getLocation()).toVector();
+
+            ((FallingBlock) fallingBlock).setVelocity(nextBlockPosition);
+        }
+
         for (FallingBlock fallingBlock : player.getWorld().getEntitiesByClass(FallingBlock.class)) {
             if (fallingBlock.getBlockData().getMaterial() != Material.FROSTED_ICE) {
                 continue;
