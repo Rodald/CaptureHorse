@@ -1,6 +1,7 @@
 package net.rodald.captureHorse.listener;
 
 import net.rodald.captureHorse.mechanics.item.UsableItem;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,12 +16,12 @@ public class BlockBreakListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         ItemStack itemStack = player.getInventory().getItemInMainHand();
-
+        Bukkit.broadcastMessage("has broken block");
         ItemMeta meta = itemStack.getItemMeta();
         if (meta != null && meta.hasDisplayName()) {
             int customModelData = meta.getCustomModelData();
             UsableItem usableItem = UsableItem.getItemByCustomModelData(customModelData);
-            if (usableItem != null){
+            if (usableItem != null) {
                 usableItem.handleBlockBreak(event);
             }
         }

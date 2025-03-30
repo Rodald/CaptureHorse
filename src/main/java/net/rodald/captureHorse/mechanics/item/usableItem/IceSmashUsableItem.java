@@ -50,6 +50,8 @@ public class IceSmashUsableItem extends UsableItem {
     @Override
     protected void prepareItem(ItemStack item) {
         ItemMeta meta = item.getItemMeta();
+        meta.setUnbreakable(true);
+        item.setItemMeta(meta);
     }
 
     @Override
@@ -57,8 +59,8 @@ public class IceSmashUsableItem extends UsableItem {
         return 255;
     }
 
-    private static final double TIME_MIN = 7;
-    private static final double TIME_MAX = 10;
+    private static final double TIME_MIN = 50;
+    private static final double TIME_MAX = 60;
     private static final double BRIDGE_LENGTH = 100;
     private static final double CURVE_STRENGTH = 2;
     private static final int BLOCKS_PER_SECOND = 10;
@@ -149,6 +151,7 @@ public class IceSmashUsableItem extends UsableItem {
     @Override
     public void handleBlockBreak(BlockBreakEvent event) {
         event.setCancelled(true);
+        Bukkit.broadcastMessage("cancelled event!");
 
         Block block = event.getBlock();
         World world = block.getWorld();
@@ -157,7 +160,7 @@ public class IceSmashUsableItem extends UsableItem {
         block.setType(Material.AIR);
         Bukkit.broadcastMessage("has broken correct block");
         blockShield += 1;
-        FallingBlock iceBlock = (FallingBlock) world.spawnEntity(location, EntityType.FALLING_BLOCK);
+        FallingBlock iceBlock = (FallingBlock) world.spawnEntity(location.clone().add(.5f, 0, .5f), EntityType.FALLING_BLOCK);
         iceBlock.setBlockData(Material.FROSTED_ICE.createBlockData());
         iceBlock.setGravity(false);
         Random random = new Random();
@@ -238,24 +241,37 @@ public class IceSmashUsableItem extends UsableItem {
 
     @Override
     public void handleTick(Player player) {
-        rotater += 0.01;
+        final int ROTATION_DISTANCE = 3;
+        rotater += 0.05;
         if (rotater >= 1) {
-            rotater = 0;
+            rotater = -1;
         }
 
         for (Map.Entry<FallingBlock, Double> fallingBlock : blockLifeTime.entrySet()) {
-            double currentValue = blockLifeTime.get((FallingBlock) fallingBlock);
-            blockLifeTime.put((FallingBlock) fallingBlock, currentValue - 0.05);
-            if (blockLifeTime.get((FallingBlock) fallingBlock) <= 0) {
-                blockDestroyer((FallingBlock) fallingBlock);
+
+            // skip loop if falling block got removed
+            if (fallingBlock.getKey().isDead()) {
+                blockDestroyer(fallingBlock.getKey());
+                break;
+            }
+
+            double currentValue = blockLifeTime.get(fallingBlock.getKey());
+            blockLifeTime.put(fallingBlock.getKey(), currentValue - 0.05);
+            if (blockLifeTime.get(fallingBlock.getKey()) <= 0) {
+                blockDestroyer(fallingBlock.getKey());
                 Bukkit.broadcastMessage("block has timed out.");
             }
-            Vector offsetFromUnitCircle = new Vector(Math.cos(blockPosition.get((FallingBlock) fallingBlock)), 0, Math.sin(blockPosition.get((FallingBlock) fallingBlock)));
+            Vector offsetFromUnitCircle = new Vector(
+                    Math.cos(blockPosition.get(fallingBlock.getKey()) + (2*Math.PI*rotater)),
+                    0.33,
+                    Math.sin(blockPosition.get(fallingBlock.getKey()) + (2*Math.PI*rotater)));
+
+            offsetFromUnitCircle.multiply(ROTATION_DISTANCE);
             Location unitCircleLocation = player.getLocation().add(offsetFromUnitCircle);
 
-            Vector nextBlockPosition = unitCircleLocation.subtract(((FallingBlock) fallingBlock).getLocation()).toVector();
+            Vector nextBlockPosition = unitCircleLocation.subtract(fallingBlock.getKey().getLocation()).toVector();
 
-            ((FallingBlock) fallingBlock).setVelocity(nextBlockPosition);
+            fallingBlock.getKey().setVelocity(nextBlockPosition.multiply(0.3));
         }
 
         for (FallingBlock fallingBlock : player.getWorld().getEntitiesByClass(FallingBlock.class)) {
@@ -295,7 +311,7 @@ public class IceSmashUsableItem extends UsableItem {
                 , NamedTextColor.RED));
 
         for (Map.Entry<FallingBlock, Double> fallingBlock : blockLifeTime.entrySet()) {
-            blockDestroyer((FallingBlock) fallingBlock);
+            blockDestroyer(fallingBlock.getKey());
         }
     }
 
@@ -304,6 +320,7 @@ public class IceSmashUsableItem extends UsableItem {
         Bukkit.broadcastMessage("blocked destroyed");
         blockLifeTime.remove(block);
         blockPosition.remove(block);
+        block.remove();
         blockShield--;
         recalcBlocks();
     }
@@ -313,7 +330,7 @@ public class IceSmashUsableItem extends UsableItem {
         Bukkit.broadcastMessage("racalculated");
         for (Map.Entry<FallingBlock, Double> fallingBlock : blockLifeTime.entrySet()) {
             cntr++;
-            blockPosition.put((FallingBlock) fallingBlock, ((2 * Math.PI) * ((double) cntr / blockShield)));
+            blockPosition.put(fallingBlock.getKey(), ((2 * Math.PI) * ((double) cntr / blockShield)));
         }
     }
 
@@ -333,7 +350,7 @@ public class IceSmashUsableItem extends UsableItem {
             Vector velocity = new Vector(Math.cos(angle), 0.5 + Math.random() * 0.2, Math.sin(angle))
                     .multiply(velocityMultiplier);
 
-            FallingBlock iceBlock = (FallingBlock) world.spawnEntity(location, EntityType.FALLING_BLOCK);
+            FallingBlock iceBlock = (FallingBlock) world.spawnEntity(location.clone().add(.5f, 0, .5f), EntityType.FALLING_BLOCK);
             iceBlock.setBlockData(Material.FROSTED_ICE.createBlockData());
             iceBlock.setVelocity(velocity);
             iceBlock.setDropItem(false);

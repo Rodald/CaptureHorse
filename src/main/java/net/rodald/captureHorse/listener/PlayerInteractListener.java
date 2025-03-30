@@ -21,7 +21,6 @@ public class PlayerInteractListener implements Listener {
 
                 if (usableItem != null) {
                     usableItem.handleItemAction(event);
-                    event.setCancelled(true);
                 }
             }
         }
