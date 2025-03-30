@@ -19,7 +19,6 @@ public class PlayerDeathListener implements Listener {
         if (meta != null && meta.hasDisplayName()) {
             int customModelData = meta.getCustomModelData();
             UsableItem usableItem = UsableItem.getItemByCustomModelData(customModelData);
-
             if (usableItem != null) {
                 usableItem.onDisable(event.getPlayer());
             }

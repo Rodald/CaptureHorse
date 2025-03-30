@@ -13,6 +13,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -65,15 +66,17 @@ public class IceSmashUsableItem extends UsableItem {
     private static final double CURVE_STRENGTH = 2;
     private static final int BLOCKS_PER_SECOND = 10;
     private static final int BRIDGE_WIDTH = 1;
+    private static final int BLOCK_PLACE_RAN_CHANCE = 4;
     private static final int GROUND_POUND_RANGE = 40;
     private int blockShield;
     private double rotater;
     private HashMap<FallingBlock, Double> blockPosition = new HashMap<>();
     private HashMap<FallingBlock, Double> blockLifeTime = new HashMap<>();
+    private HashMap<FallingBlock, Double> projectileBlock = new HashMap<>();
 
     @Override
     public boolean handleRightClick(PlayerInteractEvent event) {
-
+        Bukkit.broadcastMessage("block has been right clicked.");
         // cancels the event so players cant put the item into an armor stand or something like that
         event.setCancelled(true);
         Player player = event.getPlayer();
@@ -221,6 +224,7 @@ public class IceSmashUsableItem extends UsableItem {
 
     @Override
     public void handleAttack(EntityDamageByEntityEvent event) {
+        Bukkit.broadcastMessage("block has been hit.");
         Player damager = (Player) event.getDamager();
         Entity target = event.getEntity();
 
@@ -230,6 +234,12 @@ public class IceSmashUsableItem extends UsableItem {
                     return;
                 }
             }
+        } else if (event.getEntityType() == EntityType.FALLING_BLOCK && ((FallingBlock) target).getBlockData().getMaterial() == Material.FROSTED_ICE && checkFallingBlock((FallingBlock)target,blockLifeTime)) {
+            Bukkit.broadcastMessage("block has been hit.");
+            blockDestroyer((FallingBlock)target);
+            Vector fallingB = new Vector(damager.getLocation().getX()-target.getLocation().getX(),damager.getLocation().getY()-target.getLocation().getY(),damager.getLocation().getZ()-target.getLocation().getZ());
+            ((FallingBlock)target).setVelocity(fallingB.multiply(damager.getVelocity().multiply(0.3)).multiply(damager.getAttribute(Attribute.ATTACK_DAMAGE).getValue()*0.2));
+            projectileBlock.put((FallingBlock)target,damager.getAttribute(Attribute.ATTACK_DAMAGE).getValue()*1.2);
         }
 
         World world = target.getWorld();
@@ -242,7 +252,7 @@ public class IceSmashUsableItem extends UsableItem {
     @Override
     public void handleTick(Player player) {
         final int ROTATION_DISTANCE = 3;
-        rotater += 0.05;
+        rotater += 0.01;
         if (rotater >= 1) {
             rotater = -1;
         }
@@ -309,12 +319,18 @@ public class IceSmashUsableItem extends UsableItem {
     public void onDisable(Player player) {
         Bukkit.broadcast(Component.text("onDisable! Removing " + blockLifeTime.size() + " entries"
                 , NamedTextColor.RED));
-
         for (Map.Entry<FallingBlock, Double> fallingBlock : blockLifeTime.entrySet()) {
             blockDestroyer(fallingBlock.getKey());
         }
     }
-
+    public boolean checkFallingBlock(FallingBlock block, HashMap<FallingBlock, Double> hasher) {
+        for (Map.Entry<FallingBlock, Double> fallingBlock : hasher.entrySet()) {
+            if (block == (FallingBlock) fallingBlock) {
+                return true;
+            }
+        }
+        return false;
+    }
     private void blockDestroyer(FallingBlock block) {
         block.setGravity(true);
         Bukkit.broadcastMessage("blocked destroyed");
@@ -407,5 +423,17 @@ public class IceSmashUsableItem extends UsableItem {
     @Override
     public void playSound(Player p) {
 
+    }
+    public void handleFallingBlockLand(EntityChangeBlockEvent event) {
+        Bukkit.broadcastMessage("triggered");
+        if (checkFallingBlock((FallingBlock) event,projectileBlock)) {
+            if (Math.round(Math.random()*BLOCK_PLACE_RAN_CHANCE)!=BLOCK_PLACE_RAN_CHANCE) {
+                event.setCancelled(true);
+                projectileBlock.remove((FallingBlock) event);
+                ((FallingBlock) event).remove();
+            }else{
+                projectileBlock.remove((FallingBlock) event);
+            }
+        }
     }
 }

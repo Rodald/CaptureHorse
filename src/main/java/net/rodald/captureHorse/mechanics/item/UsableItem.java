@@ -7,8 +7,10 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.rodald.captureHorse.mechanics.Item;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -26,7 +28,6 @@ public abstract class UsableItem extends Item {
     }
     public boolean clearItemOnUse() { return false; };
     public abstract boolean handleRightClick(PlayerInteractEvent event);
-
     public abstract void handleAttack(EntityDamageByEntityEvent event);
     public abstract void handleTick(Player player);
     public abstract void spawnParticles(Player player);
@@ -61,6 +62,9 @@ public abstract class UsableItem extends Item {
     }
 
     public void handleBlockBreak(BlockBreakEvent event) {
+
+    }
+    public void handleFallingBlockLand(EntityChangeBlockEvent event) {
 
     }
 
