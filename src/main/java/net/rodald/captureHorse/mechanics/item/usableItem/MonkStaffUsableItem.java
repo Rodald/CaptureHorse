@@ -11,8 +11,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.UUID;
 
 public class MonkStaffUsableItem extends UsableItem {
 
@@ -49,7 +47,6 @@ public class MonkStaffUsableItem extends UsableItem {
                 player.sendMessage("Jumping!");
             }
         }
-
     }
 
     private void onSneak(Player player) {

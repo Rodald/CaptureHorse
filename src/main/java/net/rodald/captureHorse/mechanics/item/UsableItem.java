@@ -43,7 +43,7 @@ public abstract class UsableItem extends Item {
                 p.getInventory().setItemInMainHand(amount > 0 ? item : null);
             }
 
-            if (p.getGameMode() != GameMode.CREATIVE && handleRightClick(e)) {
+            if (p.getGameMode() != GameMode.CREATIVE && e.getAction().isLeftClick() && handleRightClick(e)) {
                 setCooldown(p);
             }
 

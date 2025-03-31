@@ -179,12 +179,6 @@ public class IceSmashUsableItem extends UsableItem {
         }
     }
 
-
-
-
-
-
-
     @Override
     public void spawnParticles(Player p) {
         new BukkitRunnable() {
