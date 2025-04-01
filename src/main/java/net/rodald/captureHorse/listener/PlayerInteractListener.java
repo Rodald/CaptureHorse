@@ -9,8 +9,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class PlayerInteractListener implements Listener {
     @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent e) {
-        ItemStack itemStack = e.getItem();
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        ItemStack itemStack = event.getItem();
 
 
         if (itemStack != null) {
@@ -20,8 +20,8 @@ public class PlayerInteractListener implements Listener {
                 UsableItem usableItem = UsableItem.getItemByCustomModelData(customModelData);
 
                 if (usableItem != null) {
-                    usableItem.handleItemAction(e);
-                    e.setCancelled(true);
+                    usableItem.handleItemAction(event);
+                    event.setCancelled(true);
                 }
             }
         }

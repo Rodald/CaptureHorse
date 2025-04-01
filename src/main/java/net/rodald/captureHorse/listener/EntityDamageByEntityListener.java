@@ -10,8 +10,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class EntityDamageByEntityListener implements Listener {
     @EventHandler
-    public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
-        if (e.getDamager() instanceof Player player) {
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Player player) {
             ItemStack itemStack = player.getInventory().getItemInMainHand();
 
             ItemMeta meta = itemStack.getItemMeta();
@@ -20,7 +20,7 @@ public class EntityDamageByEntityListener implements Listener {
                 UsableItem usableItem = UsableItem.getItemByCustomModelData(customModelData);
 
                 if (usableItem != null) {
-                    usableItem.handleEntityDamageByEntity(e);
+                    usableItem.handleEntityDamageByEntity(event);
                 }
             }
         }
