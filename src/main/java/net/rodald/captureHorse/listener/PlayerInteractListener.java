@@ -1,6 +1,7 @@
 package net.rodald.captureHorse.listener;
 
 import net.rodald.captureHorse.mechanics.item.UsableItem;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -12,7 +13,6 @@ public class PlayerInteractListener implements Listener {
     public void onPlayerInteract(PlayerInteractEvent event) {
         ItemStack itemStack = event.getItem();
 
-
         if (itemStack != null) {
             ItemMeta meta = itemStack.getItemMeta();
             if (meta != null && meta.hasDisplayName()) {
@@ -21,9 +21,9 @@ public class PlayerInteractListener implements Listener {
 
                 if (usableItem != null) {
                     usableItem.handleItemAction(event);
-                    event.setCancelled(true);
                 }
             }
         }
     }
 }
+
