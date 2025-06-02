@@ -1,6 +1,7 @@
 package net.rodald.captureHorse.listener;
 
 import net.rodald.captureHorse.mechanics.item.UsableItem;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -10,8 +11,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class EntityDamageByEntityListener implements Listener {
     @EventHandler
-    public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
-        if (e.getDamager() instanceof Player player) {
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        Bukkit.broadcastMessage("Entity damage by Entity");
+        if (event.getDamager() instanceof Player player) {
             ItemStack itemStack = player.getInventory().getItemInMainHand();
 
             ItemMeta meta = itemStack.getItemMeta();
@@ -20,7 +22,7 @@ public class EntityDamageByEntityListener implements Listener {
                 UsableItem usableItem = UsableItem.getItemByCustomModelData(customModelData);
 
                 if (usableItem != null) {
-                    usableItem.handleEntityDamageByEntity(e);
+                    usableItem.handleEntityDamageByEntity(event);
                 }
             }
         }
