@@ -1,19 +1,17 @@
 package net.rodald.captureHorse.mechanics.item;
 
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
-import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.rodald.captureHorse.mechanics.Item;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
-import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -36,7 +34,11 @@ public abstract class UsableItem extends Item {
     
     public void handleItemAction(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        if (isOnCooldown(player)) {
+        if (event.getAction().isLeftClick()) {
+           if (handleLeftClick(event)) {
+               setCooldown(player);
+           }
+        } else if (isOnCooldown(player)) {
             double remainingTime = getRemainingTime(player);
             player.sendMessage(Component.text(String.format("Your ability is on cooldown: %.2f seconds.", remainingTime), NamedTextColor.BLACK));
             player.playSound(player, Sound.ENTITY_PLAYER_TELEPORT, 1, 1);
@@ -56,12 +58,15 @@ public abstract class UsableItem extends Item {
             playSound(player);
         }
     }
-
+    public abstract boolean handleLeftClick(PlayerInteractEvent event);
     public void handleJumpEvent(PlayerJumpEvent event) {
 
     }
 
     public void handleBlockBreak(BlockBreakEvent event) {
+
+    }
+    public void handleChatMessage(AsyncChatEvent event) {
 
     }
     public void handleFallingBlockLand(EntityChangeBlockEvent event) {

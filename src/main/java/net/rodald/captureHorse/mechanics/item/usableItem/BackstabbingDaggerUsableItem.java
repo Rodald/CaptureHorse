@@ -19,7 +19,10 @@ public class BackstabbingDaggerUsableItem extends UsableItem {
     public int getCooldown() {
         return 600;
     }
-
+    @Override
+    public boolean handleLeftClick(PlayerInteractEvent event){
+        return false;
+    }
     @Override
     public boolean handleRightClick(PlayerInteractEvent event) {
         return false;

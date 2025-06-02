@@ -69,7 +69,10 @@ public class KatanaUsableItem extends UsableItem {
     public int getCustomModelData() {
         return 256;
     }
-
+    @Override
+    public boolean handleLeftClick(PlayerInteractEvent event){
+        return false;
+    }
     @Override
     public boolean handleRightClick(PlayerInteractEvent event) {
         Player player = event.getPlayer();

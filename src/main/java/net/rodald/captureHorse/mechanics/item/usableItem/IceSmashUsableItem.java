@@ -73,6 +73,7 @@ public class IceSmashUsableItem extends UsableItem {
     private HashMap<FallingBlock, Double> blockPosition = new HashMap<>();
     private HashMap<FallingBlock, Double> blockLifeTime = new HashMap<>();
     private HashMap<FallingBlock, Double> projectileBlock = new HashMap<>();
+    private HashMap<Slime, FallingBlock> hitBox = new HashMap<>();
 
     @Override
     public boolean handleRightClick(PlayerInteractEvent event) {
@@ -164,6 +165,13 @@ public class IceSmashUsableItem extends UsableItem {
         Bukkit.broadcastMessage("has broken correct block");
         blockShield += 1;
         FallingBlock iceBlock = (FallingBlock) world.spawnEntity(location.clone().add(.5f, 0, .5f), EntityType.FALLING_BLOCK);
+        Slime hitbox = (Slime) world.spawnEntity(location.clone().add(.5f, 0, .5f), EntityType.SLIME);
+        hitBox.put(hitbox,iceBlock);
+        hitbox.setAI(false);
+        hitbox.setHealth(10);
+        iceBlock.addPassenger((Slime) world.spawnEntity(location.clone().add(.5f, 0, .5f), EntityType.SLIME));
+        hitbox.setGravity(false);
+        hitbox.getAttribute(Attribute.SCALE).setBaseValue(1.1);
         iceBlock.setBlockData(Material.FROSTED_ICE.createBlockData());
         iceBlock.setGravity(false);
         Random random = new Random();
@@ -224,7 +232,7 @@ public class IceSmashUsableItem extends UsableItem {
 
     @Override
     public void handleAttack(EntityDamageByEntityEvent event) {
-        Bukkit.broadcastMessage("block has been hit.");
+        Bukkit.broadcastMessage("block has been hit." + event.getEntity().getType());
         Player damager = (Player) event.getDamager();
         Entity target = event.getEntity();
 
@@ -234,7 +242,7 @@ public class IceSmashUsableItem extends UsableItem {
                     return;
                 }
             }
-        } else if (event.getEntityType() == EntityType.FALLING_BLOCK && ((FallingBlock) target).getBlockData().getMaterial() == Material.FROSTED_ICE && checkFallingBlock((FallingBlock)target,blockLifeTime)) {
+        } else if (event.getEntity().getType() == EntityType.FALLING_BLOCK && ((FallingBlock) target).getBlockData().getMaterial() == Material.FROSTED_ICE && checkFallingBlock((FallingBlock)target,blockLifeTime)) {
             Bukkit.broadcastMessage("block has been hit.");
             blockDestroyer((FallingBlock)target);
             Vector fallingB = new Vector(damager.getLocation().getX()-target.getLocation().getX(),damager.getLocation().getY()-target.getLocation().getY(),damager.getLocation().getZ()-target.getLocation().getZ());
@@ -248,7 +256,10 @@ public class IceSmashUsableItem extends UsableItem {
 
         spawnAndPlaceIceBlocks(targetLocation);
     }
-
+    @Override
+    public boolean handleLeftClick(PlayerInteractEvent event){
+        return false;
+    }
     @Override
     public void handleTick(Player player) {
         final int ROTATION_DISTANCE = 3;
@@ -256,7 +267,6 @@ public class IceSmashUsableItem extends UsableItem {
         if (rotater >= 1) {
             rotater = -1;
         }
-
         for (Map.Entry<FallingBlock, Double> fallingBlock : blockLifeTime.entrySet()) {
 
             // skip loop if falling block got removed
@@ -314,6 +324,11 @@ public class IceSmashUsableItem extends UsableItem {
                 }
             }
         }
+        for (Map.Entry<Slime, FallingBlock> hitbox : hitBox.entrySet()) {
+            ((Slime) hitbox).getLocation().setX(hitbox.getValue().getLocation().getX());
+            ((Slime) hitbox).getLocation().setY(hitbox.getValue().getLocation().getY());
+            ((Slime) hitbox).getLocation().setZ(hitbox.getValue().getLocation().getZ());
+        }
     }
 
     public void onDisable(Player player) {
@@ -339,6 +354,13 @@ public class IceSmashUsableItem extends UsableItem {
         block.remove();
         blockShield--;
         recalcBlocks();
+        for (Map.Entry<Slime, FallingBlock> hitbox : hitBox.entrySet()) {
+            if (hitBox.get((Slime) hitbox)==block) {
+                hitBox.remove((Slime) hitbox);
+                ((Slime) hitbox).remove();
+                return;
+            }
+        }
     }
 
     private void recalcBlocks() {

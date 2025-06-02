@@ -5,5 +5,6 @@ public enum SacrificeBladePlayerState {
     DARK_PALADIN,
     CURSES,
     BURST,
-    CHARGING
+    CHARGING,
+    BUFF
 }

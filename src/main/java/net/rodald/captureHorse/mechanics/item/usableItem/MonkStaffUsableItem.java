@@ -31,7 +31,10 @@ public class MonkStaffUsableItem extends UsableItem {
     private final int MAX_HOPS = 5;
     private final int DELAY_MEDITATION = 300;
     private final int BUFFS_MEDITATION = 600;
-
+    @Override
+    public boolean handleLeftClick(PlayerInteractEvent event){
+        return false;
+    }
     @Override
     public int getCooldown() {
         return 15;

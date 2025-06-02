@@ -19,7 +19,10 @@ public class BootsOfSpeedUsableItem extends UsableItem {
     public int getCooldown() {
         return 15;
     }
-
+    @Override
+    public boolean handleLeftClick(PlayerInteractEvent event){
+        return false;
+    }
     @Override
     public boolean handleRightClick(PlayerInteractEvent event) {
         Player player = event.getPlayer();
@@ -77,6 +80,6 @@ public class BootsOfSpeedUsableItem extends UsableItem {
 
     @Override
     public int getCustomModelData() {
-        return 258;
+        return 259;
     }
 }
