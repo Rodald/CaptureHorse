@@ -140,6 +140,11 @@ public class KatanaUsableItem extends UsableItem {
 
     }
 
+    @Override
+    public boolean handleLeftClick(PlayerInteractEvent event) {
+        return false;
+    }
+
     private void setCooldown() {
         cooldowns.put(abilities.getOrDefault(selectedSlot, null), System.currentTimeMillis());
     }

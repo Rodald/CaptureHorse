@@ -1,13 +1,20 @@
 package net.rodald.captureHorse.mechanics.item;
 
+import com.destroystokyo.paper.event.player.PlayerJumpEvent;
+import io.papermc.paper.event.player.AsyncChatEvent;
+import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.rodald.captureHorse.mechanics.Item;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -21,35 +28,61 @@ public abstract class UsableItem extends Item {
         usableItems.put(getCustomModelData(), this);
     }
     public boolean clearItemOnUse() { return false; };
-    public abstract boolean handleRightClick(PlayerInteractEvent e);
-    public abstract void handleAttack(EntityDamageByEntityEvent e);
+    public abstract boolean handleRightClick(PlayerInteractEvent event);
+    public abstract void handleAttack(EntityDamageByEntityEvent event);
     public abstract void handleTick(Player player);
-
-    public abstract void spawnParticles(Player p);
-    public abstract void playSound(Player p);
+    public abstract void spawnParticles(Player player);
+    public abstract void playSound(Player player);
     public int getCooldown() { return 0; };
-    
-    public void handleItemAction(PlayerInteractEvent e) {
-        Player p = e.getPlayer();
-        if (isOnCooldown(p)) {
-            double remainingTime = getRemainingTime(p);
-            p.sendMessage(Component.text(String.format("Your ability is on cooldown: %.2f seconds.", remainingTime), NamedTextColor.RED));
-            p.playSound(p, Sound.ENTITY_PLAYER_TELEPORT, 1, 1);
+
+    public void handleItemAction(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        if (event.getAction().isLeftClick()) {
+            if (handleLeftClick(event)) {
+                setCooldown(player);
+            }
+        } else if (isOnCooldown(player)) {
+            double remainingTime = getRemainingTime(player);
+            player.sendMessage(Component.text(String.format("Your ability is on cooldown: %.2f seconds.", remainingTime), NamedTextColor.BLACK));
+            player.playSound(player, Sound.ENTITY_PLAYER_TELEPORT, 1, 1);
         } else {
-            ItemStack item = e.getItem();
+            ItemStack item = event.getItem();
             if (clearItemOnUse()) {
                 int amount = item.getAmount() - 1;
                 item.setAmount(amount);
-                p.getInventory().setItemInMainHand(amount > 0 ? item : null);
+                player.getInventory().setItemInMainHand(amount > 0 ? item : null);
             }
 
-            if (p.getGameMode() != GameMode.CREATIVE && e.getAction().isLeftClick() && handleRightClick(e)) {
-                setCooldown(p);
+            if (player.getGameMode() != GameMode.CREATIVE && event.getAction().isRightClick() && handleRightClick(event)) {
+                setCooldown(player);
             }
 
-            spawnParticles(p);
-            playSound(p);
+            spawnParticles(player);
+            playSound(player);
         }
+    }
+    public abstract boolean handleLeftClick(PlayerInteractEvent event);
+    public void handleJumpEvent(PlayerJumpEvent event) {
+
+    }
+
+    public void handleBlockBreak(BlockBreakEvent event) {
+
+    }
+    public void handleChatMessage(AsyncChatEvent event) {
+
+    }
+    public void handleFallingBlockLand(EntityChangeBlockEvent event) {
+
+    }
+
+    /**
+     *  Gets called when the player switches from an UsableItem to another item
+     *
+     * @param player PlayerInventorySlotChangeEvent
+     */
+    public void onDisable(Player player) {
+
     }
 
     private boolean isOnCooldown(Player player) {
